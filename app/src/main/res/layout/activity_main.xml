@@ -110,7 +110,7 @@
         app:layout_constraintTop_toBottomOf="@+id/rgModoVisualizacao">
     </Button>
 
-    <com.jjoe64.graphView.GraphView
+    <com.jjoe64.graphview.GraphView
         android:id="@+id/gvResultado"
         android:layout_width="match_parent"
         android:layout_height="0dp"
