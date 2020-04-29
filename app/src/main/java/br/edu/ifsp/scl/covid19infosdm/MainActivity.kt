@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import br.edu.ifsp.scl.covid19infosdm.model.dataclass.ByCountryResponseList
 import br.edu.ifsp.scl.covid19infosdm.model.dataclass.ByCountryResponseListItem
@@ -16,6 +17,8 @@ import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -131,28 +134,36 @@ class MainActivity : AppCompatActivity() {
                     /* Preparando pontos */
                     val pointsArrayList = arrayListOf<DataPoint>()
                     casesList.forEach {
-                        val date = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(it.date.substring(0,10))
-                        val point = DataPoint(date, it.cases.toDouble())
-                        pointsArrayList.add(point)
+                        if (it.date != "0001-01-01T00:00:00Z"){
+                            val date = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(it.date.substring(0,10))
+                            val point = DataPoint(date, it.cases.toDouble())
+                            pointsArrayList.add(point)
+                        }
                     }
-                    val pointsSeries = LineGraphSeries(pointsArrayList.toTypedArray())
-                    gvResultado.addSeries(pointsSeries)
 
-                    /* Formatando gráfico */
-                    gvResultado.gridLabelRenderer.setHumanRounding(false)
-                    gvResultado.gridLabelRenderer.labelFormatter = DateAsXAxisLabelFormatter(this)
+                    if (pointsArrayList.isNotEmpty()) {
+                        val pointsSeries = LineGraphSeries(pointsArrayList.toTypedArray())
+                        gvResultado.addSeries(pointsSeries)
 
-                    gvResultado.gridLabelRenderer.numHorizontalLabels = 4
-                    val primeiraData = Date(pointsArrayList.first().x.toLong())
-                    val ultimaData = Date(pointsArrayList.last().x.toLong())
-                    gvResultado.viewport.setMinX(primeiraData.time.toDouble())
-                    gvResultado.viewport.setMaxX(ultimaData.time.toDouble())
-                    gvResultado.viewport.isXAxisBoundsManual = true
+                        /* Formatando gráfico */
+                        gvResultado.gridLabelRenderer.setHumanRounding(false)
+                        gvResultado.gridLabelRenderer.labelFormatter =
+                            DateAsXAxisLabelFormatter(this)
 
-                    gvResultado.gridLabelRenderer.numVerticalLabels = 4
-                    gvResultado.viewport.setMinY(pointsArrayList.first().y)
-                    gvResultado.viewport.setMaxY(pointsArrayList.last().y)
-                    gvResultado.viewport.isYAxisBoundsManual = true
+                        gvResultado.gridLabelRenderer.numHorizontalLabels = 4
+                        val primeiraData = Date(pointsArrayList.first().x.toLong())
+                        val ultimaData = Date(pointsArrayList.last().x.toLong())
+                        gvResultado.viewport.setMinX(primeiraData.time.toDouble())
+                        gvResultado.viewport.setMaxX(ultimaData.time.toDouble())
+                        gvResultado.viewport.isXAxisBoundsManual = true
+
+                        gvResultado.gridLabelRenderer.numVerticalLabels = 4
+                        gvResultado.viewport.setMinY(pointsArrayList.first().y)
+                        gvResultado.viewport.setMaxY(pointsArrayList.last().y)
+                        gvResultado.viewport.isYAxisBoundsManual = true
+                    }else{
+                        Toast.makeText(this, "Esse país não possui dados.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         )
